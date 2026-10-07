@@ -18,7 +18,7 @@
         }
 
         .hero {
-            /* Certifica-te de que a imagem está na mesma pasta e com este nome, ou altera para o nome correto */
+            /* Certifica-te que o nome aqui coincide exatamente com o nome do ficheiro no GitHub */
             background-image: url('fundo.jpg');
             height: 100vh;
             background-position: center;
@@ -31,14 +31,14 @@
             text-align: center;
         }
 
-        /* Camada escura por cima da imagem para dar contraste ao texto */
+        /* Camada escura semitransparente para dar destaque ao texto sobre a imagem */
         .overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(10, 11, 16, 0.75);
+            background-color: rgba(15, 17, 23, 0.65);
         }
 
         .content {
@@ -46,7 +46,6 @@
             z-index: 2;
             max-width: 800px;
             padding: 20px;
-            animation: fadeIn 1.5s ease-in-out;
         }
 
         h1 {
@@ -58,7 +57,6 @@
             background: linear-gradient(135deg, #d946ef 0%, #818cf8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 4px 15px rgba(217, 70, 239, 0.2);
         }
 
         p {
@@ -77,33 +75,6 @@
             border-radius: 50%;
             margin-right: 10px;
             box-shadow: 0 0 10px #d946ef;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(217, 70, 239, 0.7);
-            }
-            70% {
-                transform: scale(1);
-                box-shadow: 0 0 0 10px rgba(217, 70, 239, 0);
-            }
-            100% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(217, 70, 239, 0);
-            }
         }
     </style>
 </head>
