@@ -21,10 +21,10 @@
             text-align: center;
             padding: 40px 20px;
         }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 17, 23, 0.80); }
-        .content { position: relative; z-index: 2; max-width: 900px; width: 100%; }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 17, 23, 0.85); }
+        .content { position: relative; z-index: 2; max-width: 1000px; width: 100%; }
         h1 {
-            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-size: clamp(2rem, 5vw, 3.2rem);
             font-weight: 800;
             letter-spacing: 2px;
             margin-bottom: 10px;
@@ -33,14 +33,14 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        p { font-size: clamp(1rem, 2vw, 1.2rem); color: #cbd5e1; font-weight: 300; margin-bottom: 20px; }
+        p { font-size: clamp(1rem, 2vw, 1.2rem); color: #cbd5e1; font-weight: 300; margin-bottom: 25px; }
         
-        .site-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
+        .site-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
         .tab-filter-btn {
             background: rgba(30, 41, 59, 0.8);
             color: #94a3b8;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 8px 18px;
+            padding: 9px 20px;
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
@@ -48,27 +48,41 @@
             transition: 0.2s;
         }
         .tab-filter-btn:hover { background: rgba(51, 65, 85, 0.9); color: #fff; }
-        .tab-filter-btn.active { background: #d946ef; color: #fff; border-color: #d946ef; box-shadow: 0 0 10px rgba(217, 70, 239, 0.4); }
+        .tab-filter-btn.active { background: #d946ef; color: #fff; border-color: #d946ef; box-shadow: 0 0 12px rgba(217, 70, 239, 0.5); }
+
+        .program-section { margin-bottom: 35px; text-align: left; }
+        .program-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #818cf8;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
         .plans-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 20px;
-            margin-top: 20px;
-            text-align: left;
         }
         .plan-card {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(30, 41, 59, 0.75);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-            backdrop-filter: blur(5px);
+            border-radius: 12px;
+            padding: 22px;
+            backdrop-filter: blur(6px);
             position: relative;
+            transition: transform 0.2s, border-color 0.2s;
         }
-        .plan-program { font-size: 11px; color: #818cf8; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
-        .plan-title { font-size: 1.2rem; font-weight: bold; margin: 8px 0; color: #fff; }
-        .plan-price { font-size: 1.4rem; color: #34d399; font-weight: bold; }
-        .plan-discount { font-size: 0.9rem; color: #f472b6; text-decoration: line-through; margin-left: 8px; }
+        .plan-card:hover { transform: translateY(-3px); border-color: rgba(217, 70, 239, 0.4); }
+        .plan-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 12px; color: #fff; }
+        .plan-price { font-size: 1.45rem; color: #34d399; font-weight: bold; }
+        .plan-discount { font-size: 0.95rem; color: #f472b6; text-decoration: line-through; margin-left: 8px; }
         .promo-tag {
             position: absolute;
             top: 15px; right: 15px;
@@ -88,10 +102,12 @@
 
             <div id="filterTabs" class="site-tabs" style="display: none;">
                 <button class="tab-filter-btn active" onclick="filterPlans('all', event)">Todos os Planos</button>
-                <button class="tab-filter-btn" onclick="filterPlans('promo', event)">🔥 Destaques / Promoções</button>
+                <button class="tab-filter-btn" onclick="filterPlans('views', event)">👁️ Gestor de Views</button>
+                <button class="tab-filter-btn" onclick="filterPlans('social', event)">📱 Social Media Manager</button>
+                <button class="tab-filter-btn" onclick="filterPlans('promo', event)">🔥 Promoções</button>
             </div>
 
-            <div id="plansContainer" class="plans-grid"></div>
+            <div id="plansContainer"></div>
         </div>
     </div>
 
@@ -107,7 +123,7 @@
                 if (data.success) {
                     let settings = data.settings || {};
 
-                    // Modo Manutenção Automático
+                    // Modo Manutenção
                     if (settings.site_maintenance === 'true' || settings.site_maintenance === true) {
                         document.getElementById('siteTitle').innerText = "Projecto em Manutenção";
                         document.getElementById('siteSubtitle').innerText = "Aguardem Novidades";
@@ -117,13 +133,13 @@
                         return;
                     }
 
-                    // Modo Normal (Com o teu título personalizado)
+                    // Modo Normal
                     document.getElementById('siteTitle').innerText = "Social Manager APP's - FusionGroup";
                     document.getElementById('siteSubtitle').innerText = "Planos & Promoções Oficiais";
                     document.getElementById('filterTabs').style.display = 'flex';
                     
                     cachedPlans = data.plans || [];
-                    renderPlans(cachedPlans);
+                    renderPlansGrouped(cachedPlans);
                 }
             } catch (error) {
                 console.error("Erro ao ligar ao servidor:", error);
@@ -131,35 +147,57 @@
             }
         }
 
-        function renderPlans(plansToRender) {
+        function renderPlansGrouped(plansToRender) {
             let container = document.getElementById('plansContainer');
-            container.style.display = 'grid';
+            container.style.display = 'block';
             container.innerHTML = '';
 
             if (plansToRender.length === 0) {
-                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #94a3b8;">Nenhum plano disponível de momento.</p>';
+                container.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 20px;">Nenhum plano disponível de momento.</p>';
                 return;
             }
 
+            // Agrupar planos por programa
+            let groups = {};
             plansToRender.forEach(plan => {
-                let card = document.createElement('div');
-                card.className = 'plan-card';
-                
-                let hasPromo = plan.discount && plan.discount.trim() !== "";
-                let promoTagHtml = hasPromo ? `<div class="promo-tag">Promoção</div>` : '';
-                
-                let priceHtml = `<span class="plan-price">${plan.price}</span>`;
-                if (hasPromo) {
-                    priceHtml = `<span class="plan-price">${plan.discount}</span> <span class="plan-discount">${plan.price}</span>`;
-                }
+                let prog = plan.program || 'Geral';
+                if (!groups[prog]) groups[prog] = [];
+                groups[prog].push(plan);
+            });
 
-                card.innerHTML = `
-                    ${promoTagHtml}
-                    <div class="plan-program">${plan.program || 'Geral'}</div>
-                    <div class="plan-title">${plan.name}</div>
-                    <div>${priceHtml}</div>
-                `;
-                container.appendChild(card);
+            // Renderizar cada grupo separado por título
+            Object.keys(groups).forEach(progName => {
+                let section = document.createElement('div');
+                section.className = 'program-section';
+
+                let icon = progName.toLowerCase().includes('social') ? '📱' : '💻';
+                section.innerHTML = `<div class="program-title"><span>${icon}</span> ${progName}</div>`;
+
+                let grid = document.createElement('div');
+                grid.className = 'plans-grid';
+
+                groups[progName].forEach(plan => {
+                    let card = document.createElement('div');
+                    card.className = 'plan-card';
+                    
+                    let hasPromo = plan.discount && plan.discount.trim() !== "";
+                    let promoTagHtml = hasPromo ? `<div class="promo-tag">Promoção</div>` : '';
+                    
+                    let priceHtml = `<span class="plan-price">${plan.price}</span>`;
+                    if (hasPromo) {
+                        priceHtml = `<span class="plan-price">${plan.discount}</span> <span class="plan-discount">${plan.price}</span>`;
+                    }
+
+                    card.innerHTML = `
+                        ${promoTagHtml}
+                        <div class="plan-title">${plan.name}</div>
+                        <div>${priceHtml}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                section.appendChild(grid);
+                container.appendChild(section);
             });
         }
 
@@ -168,10 +206,16 @@
             if (event && event.target) event.target.classList.add('active');
 
             if (type === 'promo') {
-                let promoPlans = cachedPlans.filter(p => p.discount && p.discount.trim() !== "");
-                renderPlans(promoPlans);
+                let filtered = cachedPlans.filter(p => p.discount && p.discount.trim() !== "");
+                renderPlansGrouped(filtered);
+            } else if (type === 'views') {
+                let filtered = cachedPlans.filter(p => (p.program || '').toLowerCase().includes('views') || (p.program || '').toLowerCase().includes('gestor'));
+                renderPlansGrouped(filtered);
+            } else if (type === 'social') {
+                let filtered = cachedPlans.filter(p => (p.program || '').toLowerCase().includes('social'));
+                renderPlansGrouped(filtered);
             } else {
-                renderPlans(cachedPlans);
+                renderPlansGrouped(cachedPlans);
             }
         }
 
