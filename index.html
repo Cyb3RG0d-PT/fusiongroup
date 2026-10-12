@@ -35,13 +35,7 @@
         }
         p { font-size: clamp(1rem, 2vw, 1.2rem); color: #cbd5e1; font-weight: 300; margin-bottom: 20px; }
         
-        /* Abas de Navegação no Site */
-        .site-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
+        .site-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
         .tab-filter-btn {
             background: rgba(30, 41, 59, 0.8);
             color: #94a3b8;
@@ -56,7 +50,6 @@
         .tab-filter-btn:hover { background: rgba(51, 65, 85, 0.9); color: #fff; }
         .tab-filter-btn.active { background: #d946ef; color: #fff; border-color: #d946ef; box-shadow: 0 0 10px rgba(217, 70, 239, 0.4); }
 
-        /* Grelha de Planos */
         .plans-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -70,40 +63,19 @@
             border-radius: 10px;
             padding: 20px;
             backdrop-filter: blur(5px);
-            transition: transform 0.2s;
             position: relative;
         }
-        .plan-card:hover { transform: translateY(-5px); border-color: #d946ef; }
         .plan-program { font-size: 11px; color: #818cf8; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
         .plan-title { font-size: 1.2rem; font-weight: bold; margin: 8px 0; color: #fff; }
         .plan-price { font-size: 1.4rem; color: #34d399; font-weight: bold; }
         .plan-discount { font-size: 0.9rem; color: #f472b6; text-decoration: line-through; margin-left: 8px; }
-        
-        /* Etiqueta de Destaque / Promo */
         .promo-tag {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #f472b6;
-            color: #0f1723;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 3px 8px;
-            border-radius: 6px;
-            text-transform: uppercase;
+            top: 15px; right: 15px;
+            background: #f472b6; color: #0f1723;
+            font-size: 10px; font-weight: bold;
+            padding: 3px 8px; border-radius: 6px; text-transform: uppercase;
         }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            background: rgba(217, 70, 239, 0.15);
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid rgba(217, 70, 239, 0.4);
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        .status-dot { width: 10px; height: 10px; background-color: #d946ef; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 8px #d946ef; }
     </style>
 </head>
 <body>
@@ -111,20 +83,14 @@
     <div class="hero">
         <div class="overlay"></div>
         <div class="content">
-            <div id="statusBadgeContainer" class="status-badge">
-                <span class="status-dot"></span><span id="badgeText">Planos & Promoções Oficiais</span>
-            </div>
-            
             <h1 id="siteTitle">Fusion Group</h1>
-            <p id="siteSubtitle">A carregar informações do servidor...</p>
+            <p id="siteSubtitle">A carregar...</p>
 
-            <!-- Abas para Filtrar no Site -->
             <div id="filterTabs" class="site-tabs" style="display: none;">
                 <button class="tab-filter-btn active" onclick="filterPlans('all', event)">Todos os Planos</button>
                 <button class="tab-filter-btn" onclick="filterPlans('promo', event)">🔥 Destaques / Promoções</button>
             </div>
 
-            <!-- Grelha de Planos -->
             <div id="plansContainer" class="plans-grid"></div>
         </div>
     </div>
@@ -141,39 +107,32 @@
                 if (data.success) {
                     let settings = data.settings || {};
 
-                    if (settings.site_title) {
-                        document.getElementById('siteTitle').innerText = settings.site_title;
-                    }
-                    if (settings.site_subtitle) {
-                        document.getElementById('siteSubtitle').innerText = settings.site_subtitle;
-                    }
-
-                    let container = document.getElementById('plansContainer');
-                    let badgeContainer = document.getElementById('statusBadgeContainer');
-                    let filterTabs = document.getElementById('filterTabs');
-
+                    // Se o modo manutenção estiver ativo
                     if (settings.site_maintenance === 'true' || settings.site_maintenance === true) {
-                        if (container) { container.style.display = 'none'; container.innerHTML = ''; }
-                        if (badgeContainer) badgeContainer.style.display = 'none';
-                        if (filterTabs) filterTabs.style.display = 'none';
-                    } else {
-                        if (badgeContainer) badgeContainer.style.display = 'inline-flex';
-                        if (filterTabs) filterTabs.style.display = 'flex';
-                        
-                        cachedPlans = data.plans || [];
-                        renderPlans(cachedPlans);
+                        document.getElementById('siteTitle').innerText = settings.site_title || "FUSION GROUP";
+                        document.getElementById('siteSubtitle').innerText = settings.site_subtitle || "Servidor em atualização. Volte em breve!";
+                        document.getElementById('filterTabs').style.display = 'none';
+                        document.getElementById('plansContainer').style.display = 'none';
+                        document.getElementById('plansContainer').innerHTML = '';
+                        return;
                     }
+
+                    // Modo Normal
+                    document.getElementById('siteTitle').innerText = settings.site_title || "Fusion Group";
+                    document.getElementById('siteSubtitle').innerText = settings.site_subtitle || "Planos & Promoções Oficiais";
+                    document.getElementById('filterTabs').style.display = 'flex';
+                    
+                    cachedPlans = data.plans || [];
+                    renderPlans(cachedPlans);
                 }
             } catch (error) {
-                console.error("Erro ao ligar ao servidor Flask:", error);
-                document.getElementById('siteSubtitle').innerText = "Servidor em atualização. Volte em breve!";
+                console.error("Erro ao ligar ao servidor:", error);
+                document.getElementById('siteSubtitle').innerText = "Erro ao ligar ao servidor de gestão.";
             }
         }
 
         function renderPlans(plansToRender) {
             let container = document.getElementById('plansContainer');
-            if (!container) return;
-            
             container.style.display = 'grid';
             container.innerHTML = '';
 
@@ -205,11 +164,8 @@
         }
 
         function filterPlans(type, event) {
-            // Atualizar classes ativas dos botões
             document.querySelectorAll('.tab-filter-btn').forEach(btn => btn.classList.remove('active'));
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
+            if (event && event.target) event.target.classList.add('active');
 
             if (type === 'promo') {
                 let promoPlans = cachedPlans.filter(p => p.discount && p.discount.trim() !== "");
@@ -221,6 +177,5 @@
 
         loadServerData();
     </script>
-
 </body>
 </html>
