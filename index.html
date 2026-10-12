@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fusion Group - Promoções e Licenças</title>
+    <title>Social Manager APP's - FusionGroup</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #ffffff; }
@@ -83,7 +83,7 @@
     <div class="hero">
         <div class="overlay"></div>
         <div class="content">
-            <h1 id="siteTitle">FUSION GROUP</h1>
+            <h1 id="siteTitle">Social Manager APP's - FusionGroup</h1>
             <p id="siteSubtitle">A carregar...</p>
 
             <div id="filterTabs" class="site-tabs" style="display: none;">
@@ -96,7 +96,6 @@
     </div>
 
     <script>
-        // URL correto atualizado para o teu domínio scriptview
         const API_URL = 'https://scriptview.fusiongroup.pt/api/public-info';
         let cachedPlans = [];
 
@@ -108,19 +107,19 @@
                 if (data.success) {
                     let settings = data.settings || {};
 
-                    // Se o modo manutenção estiver ativo
+                    // Modo Manutenção Automático
                     if (settings.site_maintenance === 'true' || settings.site_maintenance === true) {
-                        document.getElementById('siteTitle').innerText = settings.site_title || "FUSION GROUP";
-                        document.getElementById('siteSubtitle').innerText = settings.site_subtitle || "Servidor em atualização. Volte em breve!";
+                        document.getElementById('siteTitle').innerText = "Projecto em Manutenção";
+                        document.getElementById('siteSubtitle').innerText = "Aguardem Novidades";
                         document.getElementById('filterTabs').style.display = 'none';
                         document.getElementById('plansContainer').style.display = 'none';
                         document.getElementById('plansContainer').innerHTML = '';
                         return;
                     }
 
-                    // Modo Normal
-                    document.getElementById('siteTitle').innerText = settings.site_title || "Fusion Group";
-                    document.getElementById('siteSubtitle').innerText = settings.site_subtitle || "Planos & Promoções Oficiais";
+                    // Modo Normal (Com o teu título personalizado)
+                    document.getElementById('siteTitle').innerText = "Social Manager APP's - FusionGroup";
+                    document.getElementById('siteSubtitle').innerText = "Planos & Promoções Oficiais";
                     document.getElementById('filterTabs').style.display = 'flex';
                     
                     cachedPlans = data.plans || [];
