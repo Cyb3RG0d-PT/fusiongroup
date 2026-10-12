@@ -33,9 +33,30 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        p { font-size: clamp(1rem, 2vw, 1.2rem); color: #cbd5e1; font-weight: 300; margin-bottom: 30px; }
+        p { font-size: clamp(1rem, 2vw, 1.2rem); color: #cbd5e1; font-weight: 300; margin-bottom: 20px; }
         
-        /* Grelha de Planos Dinâmicos */
+        /* Abas de Navegação no Site */
+        .site-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .tab-filter-btn {
+            background: rgba(30, 41, 59, 0.8);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+        .tab-filter-btn:hover { background: rgba(51, 65, 85, 0.9); color: #fff; }
+        .tab-filter-btn.active { background: #d946ef; color: #fff; border-color: #d946ef; box-shadow: 0 0 10px rgba(217, 70, 239, 0.4); }
+
+        /* Grelha de Planos */
         .plans-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -50,6 +71,7 @@
             padding: 20px;
             backdrop-filter: blur(5px);
             transition: transform 0.2s;
+            position: relative;
         }
         .plan-card:hover { transform: translateY(-5px); border-color: #d946ef; }
         .plan-program { font-size: 11px; color: #818cf8; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
@@ -57,6 +79,20 @@
         .plan-price { font-size: 1.4rem; color: #34d399; font-weight: bold; }
         .plan-discount { font-size: 0.9rem; color: #f472b6; text-decoration: line-through; margin-left: 8px; }
         
+        /* Etiqueta de Destaque / Promo */
+        .promo-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #f472b6;
+            color: #0f1723;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -78,18 +114,24 @@
             <div id="statusBadgeContainer" class="status-badge">
                 <span class="status-dot"></span><span id="badgeText">Planos & Promoções Oficiais</span>
             </div>
+            
             <h1 id="siteTitle">Fusion Group</h1>
             <p id="siteSubtitle">A carregar informações do servidor...</p>
 
-            <!-- Onde os planos do Flask vão aparecer automaticamente -->
-            <div id="plansContainer" class="plans-grid">
-                <!-- Preenchido via JavaScript -->
+            <!-- Abas para Filtrar no Site -->
+            <div id="filterTabs" class="site-tabs" style="display: none;">
+                <button class="tab-filter-btn active" onclick="filterPlans('all', event)">Todos os Planos</button>
+                <button class="tab-filter-btn" onclick="filterPlans('promo', event)">🔥 Destaques / Promoções</button>
             </div>
+
+            <!-- Grelha de Planos -->
+            <div id="plansContainer" class="plans-grid"></div>
         </div>
     </div>
 
     <script>
         const API_URL = 'https://gestao.fusiongroup.pt/api/public-info';
+        let cachedPlans = [];
 
         async function loadServerData() {
             try {
@@ -99,7 +141,6 @@
                 if (data.success) {
                     let settings = data.settings || {};
 
-                    // Atualiza o Título e Subtítulo definidos no painel
                     if (settings.site_title) {
                         document.getElementById('siteTitle').innerText = settings.site_title;
                     }
@@ -109,50 +150,72 @@
 
                     let container = document.getElementById('plansContainer');
                     let badgeContainer = document.getElementById('statusBadgeContainer');
+                    let filterTabs = document.getElementById('filterTabs');
 
-                    // Verifica se o modo de manutenção está ativo
                     if (settings.site_maintenance === 'true' || settings.site_maintenance === true) {
-                        // Se estiver em manutenção, esconde os planos e a badge de planos oficiais
-                        if (container) {
-                            container.style.display = 'none';
-                            container.innerHTML = '';
-                        }
-                        if (badgeContainer) {
-                            badgeContainer.style.display = 'none';
-                        }
+                        if (container) { container.style.display = 'none'; container.innerHTML = ''; }
+                        if (badgeContainer) badgeContainer.style.display = 'none';
+                        if (filterTabs) filterTabs.style.display = 'none';
                     } else {
-                        // Modo normal: mostra a badge e renderiza os planos
-                        if (badgeContainer) {
-                            badgeContainer.style.display = 'inline-flex';
-                        }
-                        if (container) {
-                            container.style.display = 'grid';
-                            container.innerHTML = '';
-
-                            data.plans.forEach(plan => {
-                                let card = document.createElement('div');
-                                card.className = 'plan-card';
-                                
-                                let priceHtml = `<span class="plan-price">${plan.price}</span>`;
-                                if (plan.discount) {
-                                    priceHtml = `<span class="plan-price">${plan.discount}</span> <span class="plan-discount">${plan.price}</span>`;
-                                }
-
-                                card.innerHTML = `
-                                    <div class="plan-program">${plan.program || 'Geral'}</div>
-                                    <div class="plan-title">${plan.name}</div>
-                                    <div>${priceHtml}</div>
-                                `;
-                                container.appendChild(card);
-                            });
-                        }
+                        if (badgeContainer) badgeContainer.style.display = 'inline-flex';
+                        if (filterTabs) filterTabs.style.display = 'flex';
+                        
+                        cachedPlans = data.plans || [];
+                        renderPlans(cachedPlans);
                     }
                 }
             } catch (error) {
                 console.error("Erro ao ligar ao servidor Flask:", error);
                 document.getElementById('siteSubtitle').innerText = "Servidor em atualização. Volte em breve!";
-                let container = document.getElementById('plansContainer');
-                if (container) container.style.display = 'none';
+            }
+        }
+
+        function renderPlans(plansToRender) {
+            let container = document.getElementById('plansContainer');
+            if (!container) return;
+            
+            container.style.display = 'grid';
+            container.innerHTML = '';
+
+            if (plansToRender.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #94a3b8;">Nenhum plano disponível de momento.</p>';
+                return;
+            }
+
+            plansToRender.forEach(plan => {
+                let card = document.createElement('div');
+                card.className = 'plan-card';
+                
+                let hasPromo = plan.discount && plan.discount.trim() !== "";
+                let promoTagHtml = hasPromo ? `<div class="promo-tag">Promoção</div>` : '';
+                
+                let priceHtml = `<span class="plan-price">${plan.price}</span>`;
+                if (hasPromo) {
+                    priceHtml = `<span class="plan-price">${plan.discount}</span> <span class="plan-discount">${plan.price}</span>`;
+                }
+
+                card.innerHTML = `
+                    ${promoTagHtml}
+                    <div class="plan-program">${plan.program || 'Geral'}</div>
+                    <div class="plan-title">${plan.name}</div>
+                    <div>${priceHtml}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterPlans(type, event) {
+            // Atualizar classes ativas dos botões
+            document.querySelectorAll('.tab-filter-btn').forEach(btn => btn.classList.remove('active'));
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+
+            if (type === 'promo') {
+                let promoPlans = cachedPlans.filter(p => p.discount && p.discount.trim() !== "");
+                renderPlans(promoPlans);
+            } else {
+                renderPlans(cachedPlans);
             }
         }
 
