@@ -75,11 +75,11 @@
     <div class="hero">
         <div class="overlay"></div>
         <div class="content">
-            <div class="status-badge">
-                <span class="status-dot"></span>Planos & Promoções Oficiais
+            <div id="statusBadgeContainer" class="status-badge">
+                <span class="status-dot"></span><span id="badgeText">Planos & Promoções Oficiais</span>
             </div>
-            <h1>Fusion Group</h1>
-            <p id="welcomeText">A carregar informações do servidor...</p>
+            <h1 id="siteTitle">Fusion Group</h1>
+            <p id="siteSubtitle">A carregar informações do servidor...</p>
 
             <!-- Onde os planos do Flask vão aparecer automaticamente -->
             <div id="plansContainer" class="plans-grid">
@@ -89,7 +89,6 @@
     </div>
 
     <script>
-        // Substitui pelo URL real do teu servidor Flask (ex: https://gestao.fusiongroup.pt/api/public-info)
         const API_URL = 'https://gestao.fusiongroup.pt/api/public-info';
 
         async function loadServerData() {
@@ -98,35 +97,62 @@
                 let data = await response.json();
                 
                 if (data.success) {
-                    // Atualizar texto de boas-vindas se existir
-                    if (data.settings && data.settings.welcome_text) {
-                        document.getElementById('welcomeText').innerText = data.settings.welcome_text.replace(/[*_#]/g, '');
+                    let settings = data.settings || {};
+
+                    // Atualiza o Título e Subtítulo definidos no painel
+                    if (settings.site_title) {
+                        document.getElementById('siteTitle').innerText = settings.site_title;
+                    }
+                    if (settings.site_subtitle) {
+                        document.getElementById('siteSubtitle').innerText = settings.site_subtitle;
                     }
 
-                    // Renderizar os planos
                     let container = document.getElementById('plansContainer');
-                    container.innerHTML = '';
+                    let badgeContainer = document.getElementById('statusBadgeContainer');
 
-                    data.plans.forEach(plan => {
-                        let card = document.createElement('div');
-                        card.className = 'plan-card';
-                        
-                        let priceHtml = `<span class="plan-price">${plan.price}</span>`;
-                        if (plan.discount) {
-                            priceHtml = `<span class="plan-price">${plan.discount}</span> <span class="plan-discount">${plan.price}</span>`;
+                    // Verifica se o modo de manutenção está ativo
+                    if (settings.site_maintenance === 'true' || settings.site_maintenance === true) {
+                        // Se estiver em manutenção, esconde os planos e a badge de planos oficiais
+                        if (container) {
+                            container.style.display = 'none';
+                            container.innerHTML = '';
                         }
+                        if (badgeContainer) {
+                            badgeContainer.style.display = 'none';
+                        }
+                    } else {
+                        // Modo normal: mostra a badge e renderiza os planos
+                        if (badgeContainer) {
+                            badgeContainer.style.display = 'inline-flex';
+                        }
+                        if (container) {
+                            container.style.display = 'grid';
+                            container.innerHTML = '';
 
-                        card.innerHTML = `
-                            <div class="plan-program">${plan.program || 'Geral'}</div>
-                            <div class="plan-title">${plan.name}</div>
-                            <div>${priceHtml}</div>
-                        `;
-                        container.appendChild(card);
-                    });
+                            data.plans.forEach(plan => {
+                                let card = document.createElement('div');
+                                card.className = 'plan-card';
+                                
+                                let priceHtml = `<span class="plan-price">${plan.price}</span>`;
+                                if (plan.discount) {
+                                    priceHtml = `<span class="plan-price">${plan.discount}</span> <span class="plan-discount">${plan.price}</span>`;
+                                }
+
+                                card.innerHTML = `
+                                    <div class="plan-program">${plan.program || 'Geral'}</div>
+                                    <div class="plan-title">${plan.name}</div>
+                                    <div>${priceHtml}</div>
+                                `;
+                                container.appendChild(card);
+                            });
+                        }
+                    }
                 }
             } catch (error) {
                 console.error("Erro ao ligar ao servidor Flask:", error);
-                document.getElementById('welcomeText').innerText = "Servidor em atualização. Volte em breve!";
+                document.getElementById('siteSubtitle').innerText = "Servidor em atualização. Volte em breve!";
+                let container = document.getElementById('plansContainer');
+                if (container) container.style.display = 'none';
             }
         }
 
