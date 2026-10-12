@@ -3,79 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fusion Group - Em Manutenção</title>
+    <title>Fusion Group - Promoções e Licenças</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body, html {
-            height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #ffffff;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #ffffff; }
         .hero {
-            /* Certifica-te que o nome aqui coincide exatamente com o nome do ficheiro no GitHub */
             background-image: url('fundo.jpg');
-            height: 100vh;
+            min-height: 100vh;
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
             position: relative;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
+            padding: 40px 20px;
         }
-
-        /* Camada escura semitransparente para dar destaque ao texto sobre a imagem */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(15, 17, 23, 0.65);
-        }
-
-        .content {
-            position: relative;
-            z-index: 2;
-            max-width: 800px;
-            padding: 20px;
-        }
-
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 17, 23, 0.80); }
+        .content { position: relative; z-index: 2; max-width: 900px; width: 100%; }
         h1 {
             font-size: clamp(2rem, 5vw, 3.5rem);
             font-weight: 800;
             letter-spacing: 2px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             text-transform: uppercase;
             background: linear-gradient(135deg, #d946ef 0%, #818cf8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
-        p {
-            font-size: clamp(1rem, 2.5vw, 1.5rem);
-            letter-spacing: 4px;
-            color: #cbd5e1;
-            font-weight: 300;
-            text-transform: uppercase;
+        p { font-size: clamp(1rem, 2vw, 1.2rem); color: #cbd5e1; font-weight: 300; margin-bottom: 30px; }
+        
+        /* Grelha de Planos Dinâmicos */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            text-align: left;
         }
-
-        .status-dot {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            background-color: #d946ef;
-            border-radius: 50%;
-            margin-right: 10px;
-            box-shadow: 0 0 10px #d946ef;
+        .plan-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+            transition: transform 0.2s;
         }
+        .plan-card:hover { transform: translateY(-5px); border-color: #d946ef; }
+        .plan-program { font-size: 11px; color: #818cf8; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+        .plan-title { font-size: 1.2rem; font-weight: bold; margin: 8px 0; color: #fff; }
+        .plan-price { font-size: 1.4rem; color: #34d399; font-weight: bold; }
+        .plan-discount { font-size: 0.9rem; color: #f472b6; text-decoration: line-through; margin-left: 8px; }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(217, 70, 239, 0.15);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(217, 70, 239, 0.4);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .status-dot { width: 10px; height: 10px; background-color: #d946ef; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 8px #d946ef; }
     </style>
 </head>
 <body>
@@ -83,10 +75,63 @@
     <div class="hero">
         <div class="overlay"></div>
         <div class="content">
-            <h1>Projecto em Manutenção</h1>
-            <p><span class="status-dot"></span>Aguardem Novidades</p>
+            <div class="status-badge">
+                <span class="status-dot"></span>Planos & Promoções Oficiais
+            </div>
+            <h1>Fusion Group</h1>
+            <p id="welcomeText">A carregar informações do servidor...</p>
+
+            <!-- Onde os planos do Flask vão aparecer automaticamente -->
+            <div id="plansContainer" class="plans-grid">
+                <!-- Preenchido via JavaScript -->
+            </div>
         </div>
     </div>
+
+    <script>
+        // Substitui pelo URL real do teu servidor Flask (ex: https://gestao.fusiongroup.pt/api/public-info)
+        const API_URL = 'https://gestao.fusiongroup.pt/api/public-info';
+
+        async function loadServerData() {
+            try {
+                let response = await fetch(API_URL);
+                let data = await response.json();
+                
+                if (data.success) {
+                    // Atualizar texto de boas-vindas se existir
+                    if (data.settings && data.settings.welcome_text) {
+                        document.getElementById('welcomeText').innerText = data.settings.welcome_text.replace(/[*_#]/g, '');
+                    }
+
+                    // Renderizar os planos
+                    let container = document.getElementById('plansContainer');
+                    container.innerHTML = '';
+
+                    data.plans.forEach(plan => {
+                        let card = document.createElement('div');
+                        card.className = 'plan-card';
+                        
+                        let priceHtml = `<span class="plan-price">${plan.price}</span>`;
+                        if (plan.discount) {
+                            priceHtml = `<span class="plan-price">${plan.discount}</span> <span class="plan-discount">${plan.price}</span>`;
+                        }
+
+                        card.innerHTML = `
+                            <div class="plan-program">${plan.program || 'Geral'}</div>
+                            <div class="plan-title">${plan.name}</div>
+                            <div>${priceHtml}</div>
+                        `;
+                        container.appendChild(card);
+                    });
+                }
+            } catch (error) {
+                console.error("Erro ao ligar ao servidor Flask:", error);
+                document.getElementById('welcomeText').innerText = "Servidor em atualização. Volte em breve!";
+            }
+        }
+
+        loadServerData();
+    </script>
 
 </body>
 </html>
