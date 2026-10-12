@@ -123,7 +123,6 @@
                 if (data.success) {
                     let settings = data.settings || {};
 
-                    // Modo Manutenção
                     if (settings.site_maintenance === 'true' || settings.site_maintenance === true) {
                         document.getElementById('siteTitle').innerText = "Projecto em Manutenção";
                         document.getElementById('siteSubtitle').innerText = "Aguardem Novidades";
@@ -133,7 +132,6 @@
                         return;
                     }
 
-                    // Modo Normal
                     document.getElementById('siteTitle').innerText = "Social Manager APP's - FusionGroup";
                     document.getElementById('siteSubtitle').innerText = "Planos & Promoções Oficiais";
                     document.getElementById('filterTabs').style.display = 'flex';
@@ -157,15 +155,21 @@
                 return;
             }
 
-            // Agrupar planos por programa
             let groups = {};
             plansToRender.forEach(plan => {
                 let prog = plan.program || 'Geral';
+                // Normaliza o nome do programa para evitar duplicados por causa de espaços/maiúsculas
+                let cleanProgKey = prog.replace(/\s+/g, '').toLowerCase();
+                if (cleanProgKey.includes('social')) {
+                    prog = 'Social Media Manager';
+                } else if (cleanProgKey.includes('views') || cleanProgKey.includes('gestor')) {
+                    prog = 'Gestor de Views';
+                }
+
                 if (!groups[prog]) groups[prog] = [];
                 groups[prog].push(plan);
             });
 
-            // Renderizar cada grupo separado por título
             Object.keys(groups).forEach(progName => {
                 let section = document.createElement('div');
                 section.className = 'program-section';
@@ -209,10 +213,16 @@
                 let filtered = cachedPlans.filter(p => p.discount && p.discount.trim() !== "");
                 renderPlansGrouped(filtered);
             } else if (type === 'views') {
-                let filtered = cachedPlans.filter(p => (p.program || '').toLowerCase().includes('views') || (p.program || '').toLowerCase().includes('gestor'));
+                let filtered = cachedPlans.filter(p => {
+                    let prog = (p.program || '').replace(/\s+/g, '').toLowerCase();
+                    return prog.includes('views') || prog.includes('gestor');
+                });
                 renderPlansGrouped(filtered);
             } else if (type === 'social') {
-                let filtered = cachedPlans.filter(p => (p.program || '').toLowerCase().includes('social'));
+                let filtered = cachedPlans.filter(p => {
+                    let prog = (p.program || '').replace(/\s+/g, '').toLowerCase();
+                    return prog.includes('social');
+                });
                 renderPlansGrouped(filtered);
             } else {
                 renderPlansGrouped(cachedPlans);
