@@ -83,6 +83,21 @@
         .plan-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 12px; color: #fff; }
         .plan-price { font-size: 1.45rem; color: #34d399; font-weight: bold; }
         .plan-discount { font-size: 0.95rem; color: #f472b6; text-decoration: line-through; margin-left: 8px; }
+        
+        .download-btn {
+            display: inline-block;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #d946ef 0%, #818cf8 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 13px;
+            transition: opacity 0.2s;
+        }
+        .download-btn:hover { opacity: 0.9; }
+
         .promo-tag {
             position: absolute;
             top: 15px; right: 15px;
@@ -162,6 +177,7 @@
             });
 
             html += `<button class="tab-filter-btn" onclick="filterPlans('promo', event)">🔥 Promoções</button>`;
+            html += `<button class="tab-filter-btn" onclick="filterPlans('downloads', event)">📥 Downloads</button>`;
             
             tabsContainer.innerHTML = html;
         }
@@ -225,6 +241,46 @@
             });
         }
 
+        function renderDownloadsView(plans) {
+            let container = document.getElementById('plansContainer');
+            container.style.display = 'block';
+            container.innerHTML = '';
+
+            let uniquePrograms = [...new Set(plans.map(p => p.program || 'Geral'))].filter(Boolean);
+
+            let section = document.createElement('div');
+            section.className = 'program-section';
+            section.innerHTML = `<div class="program-title"><span>📥</span> Central de Downloads</div>`;
+
+            let grid = document.createElement('div');
+            grid.className = 'plans-grid';
+
+            uniquePrograms.forEach(prog => {
+                let icon = prog.toLowerCase().includes('social') ? '📱' : (prog.toLowerCase().includes('lightburn') ? '🔥' : '💻');
+                let card = document.createElement('div');
+                card.className = 'plan-card';
+
+                // Nota: Se a API fornecer um link de download por programa (ex: plan.download_url), pode trocá-lo aqui.
+                // Coloquei um link de exemplo que pode alterar para os seus instaladores.
+                let downloadLink = "#"; 
+                if (prog.toLowerCase().includes('lightburn')) {
+                    downloadLink = "https://fusiongroup.pt/downloads/lightburn-fusion.zip";
+                } else if (prog.toLowerCase().includes('social')) {
+                    downloadLink = "https://fusiongroup.pt/downloads/social-manager.zip";
+                }
+
+                card.innerHTML = `
+                    <div class="plan-title">${icon} ${prog}</div>
+                    <p style="font-size: 13px; color: #94a3b8; margin-bottom: 10px;">Descarregue a versão mais recente e estável do software.</p>
+                    <a href="${downloadLink}" class="download-btn" target="_blank">📥 Descarregar Software</a>
+                `;
+                grid.appendChild(card);
+            });
+
+            section.appendChild(grid);
+            container.appendChild(section);
+        }
+
         function filterPlans(type, event) {
             document.querySelectorAll('.tab-filter-btn').forEach(btn => btn.classList.remove('active'));
             if (event && event.target) event.target.classList.add('active');
@@ -234,6 +290,8 @@
             } else if (type === 'promo') {
                 let filtered = cachedPlans.filter(p => p.discount && p.discount.trim() !== "");
                 renderPlansGrouped(filtered);
+            } else if (type === 'downloads') {
+                renderDownloadsView(cachedPlans);
             } else {
                 let filtered = cachedPlans.filter(p => (p.program || '') === type);
                 renderPlansGrouped(filtered);
