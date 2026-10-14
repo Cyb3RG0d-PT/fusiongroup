@@ -85,17 +85,6 @@
         }
         .plan-card:hover { transform: translateY(-3px); border-color: rgba(217, 70, 239, 0.4); }
         .plan-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 10px; color: #fff; }
-        
-        .program-logo {
-            width: 70px;
-            height: 70px;
-            object-fit: contain;
-            margin: 10px 0 15px 0;
-            border-radius: 10px;
-            background: rgba(15, 23, 42, 0.5);
-            padding: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
 
         .plan-price { font-size: 1.45rem; color: #34d399; font-weight: bold; }
         .plan-discount { font-size: 0.95rem; color: #f472b6; text-decoration: line-through; margin-left: 8px; }
@@ -148,7 +137,7 @@
     <script>
         const API_URL = 'https://scriptview.fusiongroup.pt/api/public-info';
         let cachedPlans = [];
-        let cachedPrograms = [];
+        let cachedSettings = {};
 
         async function loadServerData() {
             try {
@@ -156,9 +145,9 @@
                 let data = await response.json();
                 
                 if (data.success) {
-                    let settings = data.settings || {};
+                    cachedSettings = data.settings || {};
 
-                    if (settings.site_maintenance === 'true' || settings.site_maintenance === true) {
+                    if (cachedSettings.site_maintenance === 'true' || cachedSettings.site_maintenance === true) {
                         document.getElementById('siteTitle').innerText = "Projecto em Manutenção";
                         document.getElementById('siteSubtitle').innerText = "Aguardem Novidades";
                         document.getElementById('filterTabs').style.display = 'none';
@@ -171,7 +160,6 @@
                     document.getElementById('siteSubtitle').innerText = "Planos & Promoções Oficiais";
                     
                     cachedPlans = data.plans || [];
-                    cachedPrograms = data.programs || [];
                     
                     generateDynamicTabs(cachedPlans);
                     renderPlansGrouped(cachedPlans);
@@ -265,32 +253,32 @@
             container.style.display = 'block';
             container.innerHTML = '';
 
+            let downloadPrograms = [
+                { name: 'Gestor de Views', icon: '💻', link: cachedSettings.download_gestor_views },
+                { name: 'Social Media Manager', icon: '📱', link: cachedSettings.download_social_manager },
+                { name: 'Lightburn Fusion', icon: '🔥', link: cachedSettings.download_lightburn_fusion }
+            ].filter(p => p.link && p.link.trim() !== '');
+
+            if (downloadPrograms.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 20px;">Nenhum link de download configurado no servidor.</p>';
+                return;
+            }
+
             let section = document.createElement('div');
             section.className = 'program-section';
             section.innerHTML = `<div class="program-title"><span>📥</span> Central de Downloads</div>`;
 
             let grid = document.createElement('div');
-            grid.className, grid.className = 'plans-grid';
+            grid.className = 'plans-grid';
 
-            if (cachedPrograms.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 20px;">Nenhum link de download configurado no servidor.</p>';
-                return;
-            }
-
-            cachedPrograms.forEach(prog => {
+            downloadPrograms.forEach(prog => {
                 let card = document.createElement('div');
                 card.className = 'plan-card';
 
-                let progName = prog.name || 'Programa';
-                let progLower = progName.toLowerCase();
-                let icon = progLower.includes('social') ? '📱' : (progLower.includes('lightburn') ? '🔥' : '💻');
-                
-                let downloadLink = prog.download_link ? prog.download_link : "#";
-
                 card.innerHTML = `
-                    <div class="plan-title">${icon} ${progName}</div>
+                    <div class="plan-title">${prog.icon} ${prog.name}</div>
                     <p style="font-size: 13px; color: #94a3b8; margin: 15px 0;">Descarregue a versão mais recente e estável.</p>
-                    <a href="${downloadLink}" class="download-btn" target="_blank" ${downloadLink === "#" ? 'style="opacity: 0.5; pointer-events: none;"' : ''}>📥 Descarregar</a>
+                    <a href="${prog.link}" class="download-btn" target="_blank">📥 Descarregar Software</a>
                 `;
                 grid.appendChild(card);
             });
