@@ -104,6 +104,14 @@
         }
         .download-btn:hover { opacity: 0.9; }
 
+        .program-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            margin-bottom: 12px;
+            border-radius: 8px;
+        }
+
         .promo-tag {
             position: absolute;
             top: 15px; right: 15px;
@@ -254,9 +262,9 @@
             container.innerHTML = '';
 
             let downloadPrograms = [
-                { name: 'Gestor de Views', icon: '💻', link: cachedSettings.download_gestor_views },
-                { name: 'Social Media Manager', icon: '📱', link: cachedSettings.download_social_manager },
-                { name: 'Lightburn Fusion', icon: '🔥', link: cachedSettings.download_lightburn_fusion }
+                { name: 'Gestor de Views', img: cachedSettings.logo_gestor_views, link: cachedSettings.download_gestor_views },
+                { name: 'Social Media Manager', img: cachedSettings.logo_social_manager, link: cachedSettings.download_social_manager },
+                { name: 'Lightburn Fusion', img: cachedSettings.logo_lightburn_fusion, link: cachedSettings.download_lightburn_fusion }
             ].filter(p => p.link && p.link.trim() !== '');
 
             if (downloadPrograms.length === 0) {
@@ -275,9 +283,12 @@
                 let card = document.createElement('div');
                 card.className = 'plan-card';
 
+                let imgHtml = (prog.img && prog.img.trim() !== "") ? `<img src="${prog.img}" alt="${prog.name}" class="program-logo">` : '';
+
                 card.innerHTML = `
-                    <div class="plan-title">${prog.icon} ${prog.name}</div>
-                    <p style="font-size: 13px; color: #94a3b8; margin: 15px 0;">Descarregue a versão mais recente e estável.</p>
+                    ${imgHtml}
+                    <div class="plan-title">${prog.name}</div>
+                    <p style="font-size: 13px; color: #94a3b8; margin: 5px 0 10px 0;">Versão mais recente disponível</p>
                     <a href="${prog.link}" class="download-btn" target="_blank">📥 Descarregar Software</a>
                 `;
                 grid.appendChild(card);
