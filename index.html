@@ -158,10 +158,10 @@
             
             uniquePrograms.forEach(prog => {
                 let icon = prog.toLowerCase().includes('social') ? '📱' : (prog.toLowerCase().includes('lightburn') ? '🔥' : '💻');
-                html += `<button class="tab-filter-btn" onclick="filterPlans('${prog}', event)">${icon}${prog}</button>`;
+                html += `<button class="tab-filter-btn" onclick="filterPlans('${prog}', event)">${icon} ${prog}</button>`;
             });
 
-            html += `<button class="tab-filter-btn" onclick="filterPlans('promo', event)">🔥 Promoções</button>";
+            html += `<button class="tab-filter-btn" onclick="filterPlans('promo', event)">🔥 Promoções</button>`;
             
             tabsContainer.innerHTML = html;
         }
