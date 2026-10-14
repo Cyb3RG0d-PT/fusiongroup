@@ -87,8 +87,8 @@
         .plan-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 10px; color: #fff; }
         
         .program-logo {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             object-fit: contain;
             margin: 10px 0 15px 0;
             border-radius: 10px;
@@ -148,6 +148,7 @@
     <script>
         const API_URL = 'https://scriptview.fusiongroup.pt/api/public-info';
         let cachedPlans = [];
+        let cachedPrograms = [];
 
         async function loadServerData() {
             try {
@@ -170,6 +171,7 @@
                     document.getElementById('siteSubtitle').innerText = "Planos & Promoções Oficiais";
                     
                     cachedPlans = data.plans || [];
+                    cachedPrograms = data.programs || [];
                     
                     generateDynamicTabs(cachedPlans);
                     renderPlansGrouped(cachedPlans);
@@ -258,45 +260,37 @@
             });
         }
 
-        function renderDownloadsView(plans) {
+        function renderDownloadsView() {
             let container = document.getElementById('plansContainer');
             container.style.display = 'block';
             container.innerHTML = '';
-
-            let uniquePrograms = [...new Set(plans.map(p => p.program || 'Geral'))].filter(Boolean);
 
             let section = document.createElement('div');
             section.className = 'program-section';
             section.innerHTML = `<div class="program-title"><span>📥</span> Central de Downloads</div>`;
 
             let grid = document.createElement('div');
-            grid.className = 'plans-grid';
+            grid.className, grid.className = 'plans-grid';
 
-            uniquePrograms.forEach(prog => {
-                let icon = prog.toLowerCase().includes('social') ? '📱' : (prog.toLowerCase().includes('lightburn') ? '🔥' : '💻');
+            if (cachedPrograms.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 20px;">Nenhum link de download configurado no servidor.</p>';
+                return;
+            }
+
+            cachedPrograms.forEach(prog => {
                 let card = document.createElement('div');
                 card.className = 'plan-card';
 
-                let progLower = prog.toLowerCase();
+                let progName = prog.name || 'Programa';
+                let progLower = progName.toLowerCase();
+                let icon = progLower.includes('social') ? '📱' : (progLower.includes('lightburn') ? '🔥' : '💻');
                 
-                let logoUrl = "logos/default.png";
-                if (progLower.includes('gestor') || progLower.includes('views')) {
-                    logoUrl = "logos/gestor-views.png";
-                } else if (progLower.includes('social')) {
-                    logoUrl = "logos/social-manager.png";
-                } else if (progLower.includes('lightburn')) {
-                    logoUrl = "logos/lightburn.png";
-                }
-
-                // Puxa o link diretamente do painel/API (através da propriedade download_link do plano correspondente)
-                let samplePlan = plans.find(p => (p.program || 'Geral') === prog);
-                let downloadLink = (samplePlan && samplePlan.download_link) ? samplePlan.download_link : "#";
+                let downloadLink = prog.download_link ? prog.download_link : "#";
 
                 card.innerHTML = `
-                    <div class="plan-title">${icon} ${prog}</div>
-                    <img src="${logoUrl}" alt="${prog}" class="program-logo" onerror="this.style.display='none';">
-                    <p style="font-size: 13px; color: #94a3b8; margin-bottom: 10px;">Descarregue a versão mais recente e estável do software.</p>
-                    <a href="${downloadLink}" class="download-btn" target="_blank" ${downloadLink === "#" ? 'style="opacity: 0.5; pointer-events: none;"' : ''}>📥 Descarregar Software</a>
+                    <div class="plan-title">${icon} ${progName}</div>
+                    <p style="font-size: 13px; color: #94a3b8; margin: 15px 0;">Descarregue a versão mais recente e estável.</p>
+                    <a href="${downloadLink}" class="download-btn" target="_blank" ${downloadLink === "#" ? 'style="opacity: 0.5; pointer-events: none;"' : ''}>📥 Descarregar</a>
                 `;
                 grid.appendChild(card);
             });
@@ -315,7 +309,7 @@
                 let filtered = cachedPlans.filter(p => p.discount && p.discount.trim() !== "");
                 renderPlansGrouped(filtered);
             } else if (type === 'downloads') {
-                renderDownloadsView(cachedPlans);
+                renderDownloadsView();
             } else {
                 let filtered = cachedPlans.filter(p => (p.program || '') === type);
                 renderPlansGrouped(filtered);
@@ -326,4 +320,3 @@
     </script>
 </body>
 </html>
-```[cite: 8]
