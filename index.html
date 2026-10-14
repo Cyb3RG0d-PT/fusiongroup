@@ -107,7 +107,6 @@
             <h1 id="siteTitle">Social Manager APP's - FusionGroup</h1>
             <p id="siteSubtitle">A carregar...</p>
 
-            <!-- As abas serão geradas automaticamente aqui -->
             <div id="filterTabs" class="site-tabs" style="display: none;"></div>
 
             <div id="plansContainer"></div>
@@ -140,7 +139,6 @@
                     
                     cachedPlans = data.plans || [];
                     
-                    // Gera as abas dinamicamente com base nos programas existentes
                     generateDynamicTabs(cachedPlans);
                     renderPlansGrouped(cachedPlans);
                 }
@@ -154,18 +152,16 @@
             let tabsContainer = document.getElementById('filterTabs');
             tabsContainer.style.display = 'flex';
             
-            // Recolhe todos os nomes únicos de programas presentes nos planos
             let uniquePrograms = [...new Set(plans.map(p => p.program || 'Geral'))].filter(Boolean);
 
-            // Cria o HTML base das abas
             let html = `<button class="tab-filter-btn active" onclick="filterPlans('all', event)">Todos os Planos</button>`;
             
             uniquePrograms.forEach(prog => {
                 let icon = prog.toLowerCase().includes('social') ? '📱' : (prog.toLowerCase().includes('lightburn') ? '🔥' : '💻');
-                html += `<button class="tab-filter-btn" onclick="filterPlans('${prog}', event)">${icon} ${prog}</button>`;
+                html += `<button class="tab-filter-btn" onclick="filterPlans('${prog}', event)">${icon}${prog}</button>`;
             });
 
-            html += `<button class="tab-filter-btn" onclick="filterPlans('promo', event)">🔥 Promoções</button>`;
+            html += `<button class="tab-filter-btn" onclick="filterPlans('promo', event)">🔥 Promoções</button>";
             
             tabsContainer.innerHTML = html;
         }
@@ -229,7 +225,7 @@
             });
         }
 
-ソッド function filterPlans(type, event) {
+        function filterPlans(type, event) {
             document.querySelectorAll('.tab-filter-btn').forEach(btn => btn.classList.remove('active'));
             if (event && event.target) event.target.classList.add('active');
 
@@ -239,7 +235,6 @@
                 let filtered = cachedPlans.filter(p => p.discount && p.discount.trim() !== "");
                 renderPlansGrouped(filtered);
             } else {
-                // Filtra exatamente pelo nome do programa guardado na base de dados
                 let filtered = cachedPlans.filter(p => (p.program || '') === type);
                 renderPlansGrouped(filtered);
             }
