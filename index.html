@@ -86,7 +86,6 @@
         .plan-card:hover { transform: translateY(-3px); border-color: rgba(217, 70, 239, 0.4); }
         .plan-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 10px; color: #fff; }
         
-        /* Estilo para o Logotipo do Programa */
         .program-logo {
             width: 80px;
             height: 80px;
@@ -280,8 +279,7 @@
 
                 let progLower = prog.toLowerCase();
                 
-                // 1. Definição do Logotipo do Programa (Ajuste o caminho/URL da imagem conforme necessário)
-                let logoUrl = "logos/default.png"; // Logotipo genérico
+                let logoUrl = "logos/default.png";
                 if (progLower.includes('gestor') || progLower.includes('views')) {
                     logoUrl = "logos/gestor-views.png";
                 } else if (progLower.includes('social')) {
@@ -290,21 +288,15 @@
                     logoUrl = "logos/lightburn.png";
                 }
 
-                // 2. Link do 4shared / Servidor
-                let downloadLink = "#"; 
-                if (progLower.includes('lightburn')) {
-                    downloadLink = "https://www.4shared.com/s/SEU_LINK_LIGHTBURN";
-                } else if (progLower.includes('social')) {
-                    downloadLink = "https://www.4shared.com/s/SEU_LINK_SOCIAL";
-                } else if (progLower.includes('views') || progLower.includes('gestor')) {
-                    downloadLink = "https://www.4shared.com/s/SEU_LINK_VIEWS";
-                }
+                // Puxa o link diretamente do painel/API (através da propriedade download_link do plano correspondente)
+                let samplePlan = plans.find(p => (p.program || 'Geral') === prog);
+                let downloadLink = (samplePlan && samplePlan.download_link) ? samplePlan.download_link : "#";
 
                 card.innerHTML = `
                     <div class="plan-title">${icon} ${prog}</div>
                     <img src="${logoUrl}" alt="${prog}" class="program-logo" onerror="this.style.display='none';">
                     <p style="font-size: 13px; color: #94a3b8; margin-bottom: 10px;">Descarregue a versão mais recente e estável do software.</p>
-                    <a href="${downloadLink}" class="download-btn" target="_blank">📥 Descarregar Software</a>
+                    <a href="${downloadLink}" class="download-btn" target="_blank" ${downloadLink === "#" ? 'style="opacity: 0.5; pointer-events: none;"' : ''}>📥 Descarregar Software</a>
                 `;
                 grid.appendChild(card);
             });
@@ -334,3 +326,4 @@
     </script>
 </body>
 </html>
+```[cite: 8]
