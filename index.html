@@ -78,9 +78,26 @@
             backdrop-filter: blur(6px);
             position: relative;
             transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
         }
         .plan-card:hover { transform: translateY(-3px); border-color: rgba(217, 70, 239, 0.4); }
-        .plan-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 12px; color: #fff; }
+        .plan-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 10px; color: #fff; }
+        
+        /* Estilo para o Logotipo do Programa */
+        .program-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin: 10px 0 15px 0;
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.5);
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
         .plan-price { font-size: 1.45rem; color: #34d399; font-weight: bold; }
         .plan-discount { font-size: 0.95rem; color: #f472b6; text-decoration: line-through; margin-left: 8px; }
         
@@ -89,12 +106,13 @@
             margin-top: 15px;
             background: linear-gradient(135deg, #d946ef 0%, #818cf8 100%);
             color: white;
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: bold;
             font-size: 13px;
             transition: opacity 0.2s;
+            width: 100%;
         }
         .download-btn:hover { opacity: 0.9; }
 
@@ -260,17 +278,31 @@
                 let card = document.createElement('div');
                 card.className = 'plan-card';
 
-                // Nota: Se a API fornecer um link de download por programa (ex: plan.download_url), pode trocá-lo aqui.
-                // Coloquei um link de exemplo que pode alterar para os seus instaladores.
+                let progLower = prog.toLowerCase();
+                
+                // 1. Definição do Logotipo do Programa (Ajuste o caminho/URL da imagem conforme necessário)
+                let logoUrl = "logos/default.png"; // Logotipo genérico
+                if (progLower.includes('gestor') || progLower.includes('views')) {
+                    logoUrl = "logos/gestor-views.png";
+                } else if (progLower.includes('social')) {
+                    logoUrl = "logos/social-manager.png";
+                } else if (progLower.includes('lightburn')) {
+                    logoUrl = "logos/lightburn.png";
+                }
+
+                // 2. Link do 4shared / Servidor
                 let downloadLink = "#"; 
-                if (prog.toLowerCase().includes('lightburn')) {
-                    downloadLink = "https://fusiongroup.pt/downloads/lightburn-fusion.zip";
-                } else if (prog.toLowerCase().includes('social')) {
-                    downloadLink = "https://fusiongroup.pt/downloads/social-manager.zip";
+                if (progLower.includes('lightburn')) {
+                    downloadLink = "https://www.4shared.com/s/SEU_LINK_LIGHTBURN";
+                } else if (progLower.includes('social')) {
+                    downloadLink = "https://www.4shared.com/s/SEU_LINK_SOCIAL";
+                } else if (progLower.includes('views') || progLower.includes('gestor')) {
+                    downloadLink = "https://www.4shared.com/s/SEU_LINK_VIEWS";
                 }
 
                 card.innerHTML = `
                     <div class="plan-title">${icon} ${prog}</div>
+                    <img src="${logoUrl}" alt="${prog}" class="program-logo" onerror="this.style.display='none';">
                     <p style="font-size: 13px; color: #94a3b8; margin-bottom: 10px;">Descarregue a versão mais recente e estável do software.</p>
                     <a href="${downloadLink}" class="download-btn" target="_blank">📥 Descarregar Software</a>
                 `;
