@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Manager APP's - FusionGroup</title>
-    <!-- Favicon ligado diretamente ao teu servidor Flask -->
     <link rel="icon" type="image/png" href="https://scriptview.fusiongroup.pt/static/favicon.png">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -18,13 +17,13 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             text-align: center;
             padding: 40px 20px;
         }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 17, 23, 0.85); }
-        .content { position: relative; z-index: 2; max-width: 1000px; width: 100%; }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 17, 23, 0.85); z-index: 1; }
+        .content { position: relative; z-index: 2; max-width: 1000px; width: 100%; margin: auto; }
         h1 {
             font-size: clamp(2rem, 5vw, 3.2rem);
             font-weight: 800;
@@ -129,6 +128,18 @@
             font-weight: bold;
             display: block;
         }
+
+        footer {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            padding: 15px 0;
+            width: 100%;
+        }
+        footer a { color: #818cf8; text-decoration: none; margin: 0 8px; }
+        footer a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -143,6 +154,11 @@
 
             <div id="plansContainer"></div>
         </div>
+
+        <footer id="siteFooter">
+            <p>© 2026 FusionGroup. Todos os direitos reservados.</p>
+            <div id="footerLinks" style="margin-top: 5px;"></div>
+        </footer>
     </div>
 
     <script>
@@ -163,7 +179,6 @@
                         document.getElementById('siteSubtitle').innerText = "Aguardem Novidades";
                         document.getElementById('filterTabs').style.display = 'none';
                         document.getElementById('plansContainer').style.display = 'none';
-                        document.getElementById('plansContainer').innerHTML = '';
                         return;
                     }
 
@@ -173,6 +188,7 @@
                     cachedPlans = data.plans || [];
                     
                     generateDynamicTabs(cachedPlans);
+                    renderFooterPages(data.pages || []);
                     handleInitialHash();
                 }
             } catch (error) {
@@ -200,6 +216,16 @@
             html += `<button class="tab-filter-btn" data-type="downloads" onclick="filterPlans('downloads', event)">📥 Downloads</button>`;
             
             tabsContainer.innerHTML = html;
+        }
+
+        function renderFooterPages(pages) {
+            let footerLinks = document.getElementById('footerLinks');
+            let linksHtml = '';
+            pages.forEach(page => {
+                let fullUrl = page.url.startsWith('http') ? page.url : `https://scriptview.fusiongroup.pt${page.url}`;
+                linksHtml += `<a href="${fullUrl}" target="_blank">${page.title}</a>`;
+            });
+            footerLinks.innerHTML = linksHtml;
         }
 
         function renderPlansGrouped(plansToRender) {
