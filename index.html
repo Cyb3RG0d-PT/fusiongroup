@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Manager APP's - FusionGroup</title>
+    <!-- Favicon ligado diretamente ao teu servidor Flask -->
     <link rel="icon" type="image/png" href="https://scriptview.fusiongroup.pt/static/favicon.png">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -140,6 +141,47 @@
         }
         footer a { color: #818cf8; text-decoration: none; margin: 0 8px; }
         footer a:hover { text-decoration: underline; }
+
+        /* Estilos do Sistema de Toast Notifications */
+        #toastContainer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            pointer-events: auto;
+            min-width: 250px;
+            padding: 12px 18px;
+            border-radius: 8px;
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-info { border-left: 4px solid #818cf8; }
+        .toast-success { border-left: 4px solid #34d399; }
+        .toast-error { border-left: 4px solid #f472b6; }
     </style>
 </head>
 <body>
@@ -161,10 +203,33 @@
         </footer>
     </div>
 
+    <!-- Container das Notificações Flutuantes -->
+    <div id="toastContainer"></div>
+
     <script>
         const API_URL = 'https://scriptview.fusiongroup.pt/api/public-info';
         let cachedPlans = [];
         let cachedSettings = {};
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            let icon = 'ℹ️';
+            if (type === 'success') icon = '✅';
+            if (type === 'error') icon = '⚠️';
+
+            toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 50);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
 
         async function loadServerData() {
             try {
@@ -179,6 +244,7 @@
                         document.getElementById('siteSubtitle').innerText = "Aguardem Novidades";
                         document.getElementById('filterTabs').style.display = 'none';
                         document.getElementById('plansContainer').style.display = 'none';
+                        showToast("O site encontra-se em manutenção temporária.", "info");
                         return;
                     }
 
@@ -194,6 +260,7 @@
             } catch (error) {
                 console.error("Erro ao ligar ao servidor:", error);
                 document.getElementById('siteSubtitle').innerText = "Erro ao ligar ao servidor de gestão.";
+                showToast("Erro de ligação ao servidor.", "error");
             }
         }
 
