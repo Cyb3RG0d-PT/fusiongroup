@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Manager APP's - FusionGroup</title>
+    <!-- Favicon ligado diretamente ao teu servidor Flask -->
+    <link rel="icon" type="image/png" href="https://scriptview.fusiongroup.pt/static/favicon.png">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #ffffff; }
@@ -171,8 +173,6 @@
                     cachedPlans = data.plans || [];
                     
                     generateDynamicTabs(cachedPlans);
-                    
-                    // Verificar se existe um hash no URL para abrir a aba correspondente ao carregar
                     handleInitialHash();
                 }
             } catch (error) {
@@ -314,7 +314,6 @@
             }
 
             if (updateHistory) {
-                // Atualiza o URL no browser sem recarregar a página
                 if (type === 'all') {
                     history.pushState(null, '', window.location.pathname);
                 } else {
@@ -357,7 +356,6 @@
             filterPlans(foundType, null, false);
         }
 
-        // Detetar se o utilizador usa os botões Avançar/Recuar do browser
         window.addEventListener('popstate', function() {
             handleInitialHash();
         });
